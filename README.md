@@ -1,2 +1,3 @@
 # LeetCode
-LeetCode questionnaires  answeres
+LeetCode questions and scripts
+https://leetcode.com/problemset/all/
