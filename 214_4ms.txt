@@ -1,0 +1,40 @@
+class Solution {
+public:
+    string shortestPalindrome(string s) {
+        if (s.length() <= 1) return s;
+        string rev_s = reverse(s);
+        string s_rev_s = s + '#' + rev_s;
+        //first construct longest prefix surfix table of s_rev_s
+        int i = 0, j = 0;
+        vector<int> lps(s_rev_s.length(), 0);
+        lps[0] = 0;
+        i = 1;
+        
+        //......j.......i
+        //.....j-1 j.......i-1 i
+        while (i < s_rev_s.length()) {
+            if ( s_rev_s[i] == s_rev_s[j] ) {
+                lps[i] = j + 1;
+                i++;
+                j++;
+            } else {
+                if (j != 0) {
+                    j = lps[j-1];
+                } else {
+                    lps[i] = 0;
+                    i++;
+                }
+            }
+        }
+        
+        int anaLength = lps[s_rev_s.length() - 1];
+        return rev_s.substr(0, s.length() - anaLength) + s;
+    }
+    
+    string reverse(string s) {
+        string rev_s;
+        for (int i = s.length() - 1; i >= 0; i--)
+            rev_s += s[i];
+        return rev_s;
+    }
+};

@@ -1,0 +1,49 @@
+class Solution {
+public:
+    template<char A, char B> bool inRange(char ch) {return ch >= A && ch <= B;}
+    int strongPasswordChecker(string s) {
+        char flags[4] = {};
+        int toFill = 3;
+        vector<int> oops[3];
+        int cnt =0;
+        char tmp = '\0';
+        for(char ch : s) {
+            if(inRange<'0','9'>(ch) && !flags[0]) flags[0] = 1, --toFill;
+            else if(inRange<'a','z'>(ch) && !flags[1]) flags[1] = 1, --toFill;
+            else if(inRange<'A','Z'>(ch) && !flags[2]) flags[2] = 1, --toFill;
+            if(tmp==ch)++cnt;
+            else {
+                if(cnt>=3) oops[cnt%3].push_back(cnt);
+                cnt = 1;
+                tmp = ch;
+            }
+        }
+        if(cnt>=3) oops[cnt%3].push_back(cnt);
+        int ret = 0;
+        int sz = s.size();
+        while(sz<6) {
+            ++sz;
+            ++ret;
+            --toFill;
+            remove(oops,3);
+        }
+        while(sz>20) {
+            --sz;
+            ++ret;
+            remove(oops,1);
+        }
+        int cut = 0;
+        for(int i=0;i<3;++i) for(int x : oops[i]) cut += x/3;
+        return ret + max(cut,toFill);
+    }
+    static void remove(vector<int> cnts[3], int dec) {
+        int tmp = 0;
+        for(int i=0;i<3;++i) {
+            if(cnts[i].empty())continue;
+            tmp = cnts[i].back()-dec;
+            cnts[i].pop_back();
+            break;
+        }
+        if(tmp>2) cnts[tmp%3].push_back(tmp);
+    }
+};

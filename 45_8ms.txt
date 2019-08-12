@@ -1,0 +1,22 @@
+class Solution {
+public:
+    int jump(vector<int>& nums) 
+    {
+        if (nums.empty()) return -1;
+        int lf = 0, rt = 0;
+        int count = 0;
+        while (rt < nums.size()-1) {
+            int max = rt;
+            int currIdx = lf;
+            while (currIdx <= rt) {
+                if (currIdx + nums[currIdx] > max)
+                    max = currIdx+nums[currIdx];
+                ++currIdx;
+            }
+            lf = rt+1;
+            rt = max;
+            ++count;
+        }
+        return count;
+    }
+};

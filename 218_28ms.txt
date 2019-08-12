@@ -1,0 +1,107 @@
+enum { Li = 0, Ri = 1, Hi= 2 };
+
+class Solution {
+public:
+	vector<vector<int>> getSkyline(vector<vector<int>>& buildings) {
+		map<int, int> rooftops;
+		rooftops[-1] = 0;
+		rooftops[INT_MAX] = 0;
+		for (auto building : buildings)
+		{
+			auto rooftopLowerIt = rooftops.lower_bound(building[0]);
+			auto rooftopUpperIt = rooftops.upper_bound(building[1]);
+			// first one's special, we know it starts before
+			
+			bool inserted = false;
+			if (rooftopLowerIt != rooftops.begin())
+			{
+				if ((*prev(rooftopLowerIt)).second < building[Hi])
+				{
+					if (rooftopLowerIt == rooftops.end())
+					{
+						assert(!rooftops.count(building[Ri]));
+						rooftops[building[Ri]] = (*prev(rooftopLowerIt)).second;  // previous segment was last segment ; needs to continue after insertion
+						assert(!rooftops.count(building[Li]));
+						rooftops[building[Li]] = building[Hi];
+						inserted = true;
+					}
+					else if ((*rooftopLowerIt).first > building[Ri]) // else next segment doesn't begin until after this segment; previous segment needs to continue until there
+					{
+						assert(!rooftops.count(building[Ri]));
+						rooftops[building[Ri]] = (*prev(rooftopLowerIt)).second;
+						assert(!rooftops.count(building[Li]));
+						rooftops[building[Li]] = building[Hi];
+						inserted = true;
+					}
+					// else what?
+				}
+				else
+				{
+					building[Li] = (*rooftopLowerIt).first;
+				}
+			}
+			// INT_MAX hack
+			if (next(rooftopLowerIt) == rooftops.end())
+			{
+				if (!inserted)
+				{
+					assert(!rooftops.count(building[Li]));
+					rooftops[building[Li]] = building[Hi];
+				}
+			}
+			else
+			{
+				for (auto rooftopIt = rooftopLowerIt; rooftopIt != rooftopUpperIt; )
+				{
+					if (building[Li] >= building[Ri]) break;  // completely obscured
+					auto left = (*rooftopIt).first;
+					auto height = (*rooftopIt).second;
+					auto right = (*next(rooftopIt)).first;
+					// if (left >= building[Li]) // we know this is true
+					if (height < building[Hi])
+					{
+						if (right <= building[Ri])
+						{
+							// completely covered by builoding
+							rooftopIt = rooftops.erase(rooftopIt);
+						}
+						else
+						{
+							// clip existing segment
+							rooftopIt = rooftops.erase(rooftopIt);
+							assert(!rooftops.count(building[Ri]));
+							rooftops[building[Ri]] = height;
+						}
+						if (!inserted) {
+							assert(!rooftops.count(building[Li]));
+							// only insert if it doesn't match previous
+							auto lb = rooftops.lower_bound(building[Li]);
+							auto previt = prev(lb);
+							auto prevHeight = (*previt).second;
+							if (building[Hi] != prevHeight)
+								rooftops[building[Li]] = building[Hi];
+
+							inserted = true;
+						}
+					}
+					else
+					{
+						rooftopIt++;
+						building[Li] = right;
+					}
+				}
+			}
+		}
+		vector<vector<int>> result;
+		auto roofIt = rooftops.begin();
+		roofIt++;
+		int lastHeight = 0;
+		for (; roofIt!=rooftops.end(); roofIt++ ) {
+			if (next(roofIt) != rooftops.end() || lastHeight != 0) {
+				lastHeight = (*roofIt).second;
+				result.push_back({ (*roofIt).first, (*roofIt).second });
+			}
+		}
+		return result;
+	}
+};

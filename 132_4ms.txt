@@ -1,0 +1,56 @@
+class Solution
+{
+public:
+	int manchester( string ss )
+	{
+		string s = "$";
+		for ( char ch : ss ) {
+			s += '#';
+			s += ch;
+		}
+		s += '#';
+
+		vector<int> dp( ss.length() + 1, INT_MAX );    //dp[i] = {mincut of s[0..i)}
+		dp[0] = -1;
+
+		vector<int> rd( s.length(), 1 );
+		int ct = 1, bd = ct + 1;    		// int center = 1, boundary = 1;
+		for ( int i = 1; i < s.length() - 1; ++i ) {
+			int rr = min( rd[ct * 2 - i], bd - i );
+
+			for ( int k = rr - 1; k > 0; --k ) {             
+				if ( ( i + k ) % 2 == 0 ) {               //to find palindrome str in (i-rr,i+rr)
+					int right = ( i + k ) / 2 - 1;
+					int left = ( i - k ) / 2 - 1;       //s[left, right] is palindrome
+					dp[right + 1] = min( dp[right + 1], dp[left] + 1 );
+				}
+			}
+
+			while ( s[i + rr] == s[i - rr] ) {
+
+				if ( ( i + rr ) % 2 == 0 ) { //extend palindrome string 
+					int right = ( i + rr ) / 2 - 1;
+					int left = ( i - rr ) / 2 - 1;
+					dp[right + 1] = min( dp[right + 1], dp[left] + 1 );
+				}
+
+				rr++;
+			}
+
+			if(!(i&1)) // to avoid missing this char
+				dp[i>>1] = min( dp[i>>1], dp[i/2-1] + 1 );
+
+			rd[i] = rr;
+			if ( i + rr > bd ) {
+				bd = i + rr;
+				ct = i;
+			}
+		}
+		return dp[ss.length()];
+	}
+	int minCut( string s )
+	{
+		if ( s.length() == 0 ) return 0;
+		return manchester( s );
+	}
+};

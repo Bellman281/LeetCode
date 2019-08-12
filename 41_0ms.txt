@@ -1,0 +1,15 @@
+//first I sort the array and then increment a variable to check if it is equal to value in index of vector
+
+class Solution {
+public:
+    int firstMissingPositive(vector<int>& v) {
+        sort(v.begin(), v.end(), less<int>());
+        int flag = 1;
+    for (int i = 0; i < v.size(); i++) {
+        if (flag == v[i]) {
+            flag++;
+        } 
+    }
+    return flag;
+    }
+};

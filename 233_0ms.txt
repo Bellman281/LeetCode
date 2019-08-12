@@ -1,0 +1,16 @@
+class Solution {
+public:
+    int countDigitOne(int n) {
+        if(n <= 0)
+	return 0;
+long int count = (n/10) + (n%10 != 0), tens = 10, c = 2;
+while(n){
+	tens = pow(10, c++);
+	count += (n/tens) * (tens/10) + min(max(n % tens - (tens/10) + 1, (long)0), tens/10);
+	if(n/tens == 0)
+		break;
+}
+return count;
+        
+    }
+};

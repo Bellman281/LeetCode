@@ -1,0 +1,39 @@
+class Solution {
+public:
+    int maximumGap(vector<int>& nums) {
+        // the straight-forward solution would be bucket sort
+        // the maximum gap is garantteed to be in different buckets
+        // O(N) in terms of both time and space
+        
+        int n = nums.size();
+        if(n<2)
+            return 0;
+        int minElement = *min_element(nums.begin(), nums.end()); 
+        int maxElement = *max_element(nums.begin(), nums.end()); 
+        int length = maxElement-minElement;
+        if(length <= 1)
+            return length;
+        vector<int> bucket_min(n, INT_MAX); // minimum value in each bucket
+        vector<int> bucket_max(n, INT_MIN); // maximum value in each bucket
+        int i, index;
+        for(i=0; i<n; i++)
+        {
+            index = 1.0*(nums[i]-minElement)/length*(n-1);
+            bucket_min[index] = min(bucket_min[index], nums[i]);
+            bucket_max[index] = max(bucket_max[index], nums[i]);
+        }
+        
+        int result=0;
+        int premax = bucket_max[0];
+        for(i=1; i<n; i++)
+        {
+            if(bucket_max[i] > INT_MIN) // there are elements in this bucket 
+            {
+                result = max(result, bucket_min[i]-premax);
+                premax = bucket_max[i];
+            }
+        }
+        
+        return result;
+    }
+};

@@ -1,0 +1,33 @@
+class Solution {
+    public:
+        int calculate(string s) {
+            istringstream ss('+' + s + '+');
+            return helper(ss);
+        }
+        
+        int helper(istringstream& ss){
+            int sum = 0, num; char op;
+            while (ss >> op){
+                while (ss.peek() == ' ') ss.get();
+    
+                if (op == '+' || op == '-'){
+                    if (isdigit(ss.peek())){
+                        ss >> num;
+                        sum += (op=='+'? 1 : -1)*num;
+                    } else {  // open paren after +
+                        sum += (op=='+'? 1 : -1)*helper(ss);
+                    }
+                } else if (op == '('){
+                    if (isdigit(ss.peek())){
+                        ss >> num;
+                        sum += num;
+                    } else {   // open paren nested
+                        sum += helper(ss);
+                    }
+                } else {  // close paren
+                    return sum;
+                }
+            }
+            return sum;
+        }
+    };

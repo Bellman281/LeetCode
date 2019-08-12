@@ -1,0 +1,46 @@
+class Solution {
+public:
+bool isNumber(string s)
+ {
+     int n = s.size();
+     if(n == 0) return false;
+     
+     int i = 0;
+     //Skip leading spaces.
+     while(s[i] == ' ') i++;
+     
+     //Significand
+     if(s[i] == '+' || s[i] == '-') i++;
+     
+     int cnt = 0;
+     //Integer part
+     while(isdigit(s[i]))
+     {
+         i++;
+         cnt++;
+     }
+     //Decimal point
+     if(s[i] == '.') i++;
+     //Fractional part
+     while(isdigit(s[i]))
+     {
+         i++;
+         cnt++;
+     }
+     if(cnt == 0) return false;  //No number in front or behind '.'
+     
+     //Exponential
+     if(s[i] == 'e')
+     {
+         i++;
+         if(s[i] == '+' || s[i] == '-') i++;
+         if(!isdigit(s[i])) return false;    //No number follows
+         while(isdigit(s[i])) i++;
+     }
+     
+     //Skip following spaces;
+     while(s[i] == ' ') i++;
+     
+     return s[i] == '\0';
+ }
+};

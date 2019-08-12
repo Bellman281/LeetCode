@@ -1,0 +1,29 @@
+class Solution {
+public:
+	int findKthNumber(int n, int k) {
+		int result = 1;
+		k--;
+		while (k > 0) {
+			const int delta = helper(result, result + 1, n);
+			if (k >= delta) {
+				result++;
+				k -= delta;
+			}
+			else {
+				result *= 10;
+				k--;
+			}
+		}
+		return result;
+	}
+private:
+	size_t helper(size_t lb, size_t ub, const size_t n) {
+		size_t result = 0;
+		while (lb <= n) {
+			result += min(n + 1, ub) - lb;
+			lb *= 10;
+			ub *= 10;
+		}
+		return result;
+	}
+};

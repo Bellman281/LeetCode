@@ -1,0 +1,61 @@
+class Solution {
+public:
+
+    vector<string> fullJustify(vector<string> &words, int L) {
+        int sz=words.size();
+        int st=0;
+        int end=st;
+        int len;
+        vector<string> result;
+        string line;
+        int numSpace;
+        int average,remain;
+        while(st<sz) {
+            std::cout<<st<<endl;
+            len=0;
+            end=st;
+            while(end<sz && len<(L+1)) {
+                len+=(words[end++].length()+1);
+            }
+            if(len>(L+1)) {
+                len-=(words[end-1].length()+1);
+                end-=2;
+            }
+            else
+                end--;
+            if(end<st)
+                break;
+            line=words[st];
+            numSpace=L-len+end-st+1;
+            if(end!=st&&end!=sz-1){
+                average=numSpace/(end-st);
+                remain=numSpace%(end-st);
+            }
+            else {
+                average=numSpace;
+                remain=numSpace-end+st;
+            }
+            if(end==sz-1)
+            {
+                //Last Line
+                for(int i=st+1;i<=end;i++)
+                    line+=(" "+words[i]);
+            }
+            else
+            {
+                for(int i=st+1;i<=end;i++) {
+                    for(int j=0;j<average;j++)
+                        line+=" ";
+                    if((remain--)>0)
+                        line+=" ";
+                    line+=words[i];
+                }
+            }
+            while((remain--)>0)
+                line+=" ";
+            result.push_back(line);
+            st=end+1;
+        }
+        return result;
+    }
+};

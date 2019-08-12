@@ -1,0 +1,37 @@
+class Solution {
+public:
+    int maxCoins(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> NUMS; // include the boundaries
+        NUMS.push_back(1);
+        int i;
+        for(i=0; i<n; i++)
+            NUMS.push_back(nums[i]);
+        NUMS.push_back(1);
+        int N = n+2;
+        
+        vector< vector<int> > DP;
+        DP.resize(N);
+        for(i=0; i<N; i++)
+            DP[i].resize(N, 0); // dymanic programming
+        // DP[start][end] denotes maxCoins in NUMS[start,.....,end]
+        // return DP[1][n] as maxCoins in nums[0,......,n-1]
+        
+        int length, start, end;
+        for(length=1; length<=n; length++)
+        {
+            for(start=1; start<=n-length+1; start++)
+            {
+                end = start+length-1;
+                for(i=start; i<=end; i++)
+                {
+                    // i-the ballon is the last to burst
+                    if(DP[start][end] < DP[start][i-1]+DP[i+1][end]+NUMS[start-1]*NUMS[i]*NUMS[end+1])
+                        DP[start][end] = DP[start][i-1]+DP[i+1][end]+NUMS[start-1]*NUMS[i]*NUMS[end+1];
+                    // divide and conquer
+                } 
+            }
+        } // O(N*N*N) complexity
+        return DP[1][n];
+    }
+};

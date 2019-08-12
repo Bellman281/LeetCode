@@ -1,0 +1,47 @@
+class Solution {
+public:
+    int countRangeSum(vector<int>& nums, int lower, int upper) {
+        int n = nums.size();
+        if (n == 0) return 0;
+
+        vector<pair<int64_t, int>> sums(n, pair<int64_t, int>());
+
+        //'first' is the sum of range [0, i] and 'second' stores the original index i
+        sums[0].first = nums[0];
+        sums[0].second = 0;
+        for (int i = 1; i < n; i++)
+        {
+            sums[i].first = sums[i - 1].first + nums[i];
+            sums[i].second = i;
+        }
+
+        // sort 'sums' according to first value 
+        sort(sums.begin(), sums.end(),
+        [](pair<int64_t, int>& a1, pair<int64_t, int>& a2) { return a1.first < a2.first; });
+        
+        int count = 0;
+
+        // count matches for ranges [0, i]
+        for (int i = 0; i < n; i++)
+            if (sums[i].first >= lower && sums[i].first <= upper) count++;
+            
+        // count matches for other ranges 
+        int strt = 0;
+        for (int i = 0; i < n; i++)
+        {
+            while (strt < n && sums[strt].first < sums[i].first + lower) strt++;
+            if (strt >= n) break;
+            
+            int end = strt;
+            while (end < n && sums[end].first <= sums[i].first + upper)
+            {
+                // the corresponding range in 'nums' is [sums[i].second, sums[end].second] 
+                if (sums[i].second < sums[end].second) count++;
+                
+                end++;
+            }
+        }
+        
+        return count;
+    }
+};

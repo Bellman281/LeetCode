@@ -1,0 +1,36 @@
+class Solution {
+public:
+    // LOGIC : dp[i] = 0 for all s[i]=='(' , dp[i] = length of valid paren ending at i if s[i]==')'
+    // cases (s[i] == ')') : 
+    // 1.a. if s[i-1]=='(' then we know that dp[i] >= 2
+    // 1.a. if s[i-1] == ')', in this case we might be inside a nested parentheses,  eg : (()), so
+    //       go back to the i-dp[i-1] chars and check if its '(', if it is we add 2 to already valid parenteses
+    // 2. after getting the value of dp[i], we need to check if we added to already existing valid sequence.
+    //    so go back i-dp[i] chars and check  if dp[i-dp[i]] > 0 , if it is then we are appending to existing sequence.
+    int longestValidParentheses(string s) {
+        int n  = s.size();
+        if (n==0) return 0;
+        vector<int> dp(n,0);
+        int maxLen = INT_MIN;
+        for (int i =0; i < n; ++i) {
+            if (s[i] == ')') {
+                if (i > 0) {
+                    if (s[i-1] == '(') {
+                        // case 1a
+                        dp[i] = 2;
+                    } else if (s[i-1] == ')' && dp[i-1] > 0 && i > dp[i-1] && s[i-dp[i-1]-1] == '(') {
+                        // case 1b
+                        dp[i] = dp[i-1]+2;
+                    }
+                }
+                
+                //case 2
+                if (dp[i] > 0 && i > dp[i] && s[i-dp[i]]==')' && dp[i-dp[i]] > 0) {
+                    dp[i] += dp[i-dp[i]];
+                }
+            }
+            maxLen = max(maxLen, dp[i]);
+        }
+        return maxLen;
+    }
+};

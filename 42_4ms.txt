@@ -1,0 +1,39 @@
+class Solution {
+public:
+    int trap(vector<int>& height) {        
+        int totalCaptured = 0, leftMax, leftMaxIdx;
+
+        if (height.size()) {
+            leftMaxIdx = 0;
+            leftMax = height[0];
+        }
+
+        // - Walk left-to-right keeping track of left max height value
+        // - Heights smaller than left max are skipped
+        // - Two events will cause water captured calculations
+        //   (1) curHeight >= leftMax
+        //   (2) we're at the end of the array
+        //      - During the calc phase walk right-to-left back to left max index
+        //      - Keep track of the right max height value during this process
+        //      - For each height, calculate how much is captured
+        //      - Update leftMaxIdx = i 
+        // - Repeat this process
+        
+        for (int i = 1; i < height.size(); ++i) {
+            if (height[i] >= leftMax || i+1 == height.size()) {
+                int rightMax = 0;
+                for (int j = i; j > leftMaxIdx; j--) {
+                    int curHeight = height[j];
+                    rightMax = max(rightMax, curHeight);
+                    int colCaptured = min(leftMax, rightMax) - curHeight;
+                    if (colCaptured > 0) 
+                        totalCaptured += colCaptured;
+                }
+                leftMax = rightMax;
+                leftMaxIdx = i;
+            }
+        }
+        
+        return totalCaptured;
+    }
+};
