@@ -1,0 +1,57 @@
+class Solution {
+public:
+    int kSimilarity(string A, string B) {
+        return bfs(A, B, 0);
+    }
+    
+    
+    int bfs(string a, string b, int cur){
+        int n = a.length();
+        if (n <= 1) return 0;
+        deque<string> q;
+        q.push_back(a);
+        int k = 0;
+        while(!q.empty()){                                
+            int s = q.size();               
+            while(s--){
+                string s = q.front();
+                q.pop_front();
+                if (s==b){
+                    return k;
+                }
+                
+                int cur = 0;
+                while(s[cur]==b[cur]) {
+                    cur++;                    
+                }
+
+                int cands = 0;
+                for(int i = cur; i < s.length(); i++){
+                    // prune 1 : if s[i]==b[i], no need to swap. there will be another
+                    // i st s[i]==b[cur] && s[i]!=b[i] because it is anagram
+                    if (s[i]==b[cur] && s[i]!=b[i]){
+                        char t = s[i];
+                        s[i]=s[cur];
+                        s[cur] = t;
+                        // prune 2: if one swap fix two char, this path contains answer
+                        // no need to further search
+                        if (s[i]==b[i]){
+                            while (cands--!=0){
+                              q.pop_back();
+                            }
+                            q.push_back(s); 
+                            break;
+                        }
+                        q.push_back(s); 
+
+                        s[cur] = s[i];
+                        s[i]=t;  
+                        cands++;
+                    }                    
+                }
+            }
+            k++;
+        }
+        return k;
+    }
+};

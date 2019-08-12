@@ -1,0 +1,22 @@
+class Solution {
+public:
+    int preimageSizeFZF(int K) {
+        long long int p5 = 1;
+        long long int p = 1;
+        
+        while (p < K) {
+            p5 *= 5;
+            p += p5;
+        }
+        
+        while (p > 1) {
+            if (K % p == p - 1)
+                return 0;
+            K -= K / p;
+            p -= p5;
+            p5 /= 5;
+        }
+        
+        return 5;
+    }
+};

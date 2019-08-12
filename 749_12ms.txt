@@ -1,0 +1,130 @@
+class Solution {
+    int M, N, K;
+    vector<int> root, affect;
+    
+    // operations of Union-Find
+    int find_root(int i) {
+        if (root[i] == -1) return -1;       // -1: this union cannot spread any more
+        if (root[i] == i) return i;
+        root[i] = find_root(root[i]);
+        return root[i];
+    }
+    void union_set(int i, int j) {
+        root[find_root(j)] = find_root(i);
+    }
+    
+    void showGrid(vector<vector<int>>& grid) {
+        for (int i=0; i<M; i++) {
+            for (int j=0; j<N; j++) 
+                cout << grid[i][j] << ' ';
+            cout << endl;
+        }
+    }
+    
+    void constructUnions(vector<vector<int>>& grid) {
+        K = M * N;
+        root.resize(K);
+        affect.resize(K, 0);
+        for (int i=0; i<K; i++) {
+            int a = i / N, b = i % N;
+            if (!grid[a][b]) 
+                root[i] = -1;
+            else {
+                root[i] = i;
+                if (a && grid[a-1][b] && find_root(i) != find_root(i-N)) union_set(i-N, i);
+                if (b && grid[a][b-1] && find_root(i) != find_root(i-1)) union_set(i-1, i);
+            }
+        }
+        //showGrid(grid);
+    }
+        
+    pair<int, int> findMostAffect(vector<vector<int>>& grid) {
+        fill(affect.begin(), affect.end(), 0);
+        for (int i=0; i<K; i++) {
+            int a = i / N, b = i % N;
+            if (grid[a][b]) continue;
+            unordered_set<int> nei;         // to avoid duplicate adding
+            if (a>0   && grid[a-1][b] && find_root(i-N) != -1) nei.insert(root[i-N]);
+            if (b>0   && grid[a][b-1] && find_root(i-1) != -1) nei.insert(root[i-1]);
+            if (a<M-1 && grid[a+1][b] && find_root(i+N) != -1) nei.insert(root[i+N]);
+            if (b<N-1 && grid[a][b+1] && find_root(i+1) != -1) nei.insert(root[i+1]);
+            for (int n : nei) affect[n] ++;
+        }
+        int maxUnion = -1, mayAffect = 0, maxAffect = 0;
+        for (int r=0; r<K; r++) {
+            if (affect[r] > maxAffect) {
+                maxAffect = affect[r];
+                maxUnion = r;
+            }
+            mayAffect += affect[r];
+        }
+        //cout << "maxUnion:" << maxUnion << ", mayAffect:" << mayAffect << endl;
+        return {maxUnion, mayAffect};
+    }
+        
+    int buildWallAndGrow(vector<vector<int>>& grid, int maxUnion) {
+        int walls = 0;
+        
+        // build walls
+        for (int i=0; i<K; i++) {
+            int a = i / N, b = i % N;
+            if (grid[a][b] && find_root(i) == maxUnion) {
+                if (a>0   && !grid[a-1][b]) walls ++;
+                if (b>0   && !grid[a][b-1]) walls ++;
+                if (a<M-1 && !grid[a+1][b]) walls ++;
+                if (b<N-1 && !grid[a][b+1]) walls ++;
+            }
+        }
+        
+        // disable current union
+        root[maxUnion] = -1;
+        
+        // growth of other unions
+        vector<int> toAffect;
+        for (int i=0; i<K; i++) {
+            int a = i / N, b = i % N;
+            if (!grid[a][b]) {
+                if ((a>0   && grid[a-1][b] && find_root(i-N) != -1) ||
+                    (b>0   && grid[a][b-1] && find_root(i-1) != -1) ||
+                    (a<M-1 && grid[a+1][b] && find_root(i+N) != -1) ||
+                    (b<N-1 && grid[a][b+1] && find_root(i+1) != -1))
+                {
+                    toAffect.push_back(i);
+                }
+            }
+        }
+        for (int i : toAffect) {
+            int a = i / N, b = i % N;
+            root[i] = i;
+            grid[a][b] = 1;
+            if (a>0   && grid[a-1][b] && find_root(i-N) != -1) union_set(i-N, i);
+            if (b>0   && grid[a][b-1] && find_root(i-1) != -1) union_set(i-1, i);
+            if (a<M-1 && grid[a+1][b] && find_root(i+N) != -1) union_set(i+N, i);
+            if (b<N-1 && grid[a][b+1] && find_root(i+1) != -1) union_set(i+1, i);
+        }
+       
+        //cout << "Walls:" << walls << endl;
+        //showGrid(grid);
+        return walls;
+    }
+    
+public:
+    
+    int containVirus(vector<vector<int>>& grid) {
+        if (!(M = grid.size()) || !(N = grid[0].size())) return 0;
+        constructUnions(grid);
+        
+        int walls = 0;
+        while (true) {
+            auto p = findMostAffect(grid);
+            int maxUnion = p.first;
+            int mayAffect = p.second;
+            
+            if (mayAffect) 
+                walls += buildWallAndGrow(grid, maxUnion); 
+            else break;
+        }
+        
+        return walls;
+    }
+};

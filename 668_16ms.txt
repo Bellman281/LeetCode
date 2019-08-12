@@ -1,0 +1,23 @@
+class Solution {
+public:
+    bool possible(int m, int n, int mid, int k){
+        int sum = 0;
+        for(int i = 1; i <= m; ++ i){
+            sum += min(n, mid / i);
+        }
+        return sum >= k;
+    }
+    int findKthNumber(int m, int n, int k) {
+        if(m > n)
+            swap(m, n);
+        int a = 1, b = m * n, mid;
+        while(a < b){
+            mid = (a + b)/2;
+            if(possible(m, n,mid, k))
+                b = mid;
+            else
+                a = mid + 1;
+        }
+        return a;
+    }
+};

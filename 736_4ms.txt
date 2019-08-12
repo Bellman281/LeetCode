@@ -1,0 +1,87 @@
+struct Node {
+    std::string expression;
+    std::queue<Node*> children;
+    Node* parent;
+    Node(string exp, Node* p) : expression(exp), parent(p) {};
+};
+
+class Solution {
+public:
+    int evaluate(string expression) {
+        Node* root = new Node("", NULL);
+        
+        for (int i = 1; i < expression.size()-1; i++) {
+            if (expression[i] == '(') {
+                root->expression += "A";
+                Node* child = new Node("", root);
+                root->children.push(child);
+                root = child;
+            } else if (expression[i] == ')') { 
+                root = root->parent;
+            } else {
+                root->expression.push_back(expression[i]);
+            }
+        }
+        
+        std::unordered_map<string, int> vars;
+        return parser(root, vars);
+    }
+    int parser(Node* root, std::unordered_map<string, int>& vars) {
+        std::stringstream s(root->expression);
+        std::string exp;
+        getline(s, exp, ' ');
+        
+        if (exp == "add" || exp == "mult") {
+            string v;
+            getline(s, v, ' ');
+            
+            int var1, var2;
+            if (v == "A") {
+                std::unordered_map<string, int> m = vars;
+                var1 = parser(root->children.front(), m);
+                root->children.pop();
+            } else if (v[0] == '-' || isdigit(v[0])) {
+                var1 = stoi(v);
+            } else {
+                var1 = vars[v];
+            }
+            getline(s, v, ' ');
+            if (v == "A") {
+                std::unordered_map<string, int> m = vars;
+                var2 = parser(root->children.front(), m);
+                root->children.pop();
+            } else if (v[0] == '-' || isdigit(v[0])) {
+                var2 = stoi(v);
+            } else {
+                var2 = vars[v];
+            }
+            if (exp == "add") {
+                return var1+var2;
+            } else {
+                return var1*var2;
+            }
+        } else {
+            std::string tmp, v;
+            int last = 0, i = 1;
+            while (getline(s, v, ' ')) {
+                if (v == "A") {
+                    last = parser(root->children.front(), vars);
+                    root->children.pop();
+                    vars[tmp] = last;
+                } else if (v[0] == '-' || isdigit(v[0])) {
+                    last = stoi(v);
+                    vars[tmp] = last;
+                } else {
+                    if (i%2 == 0) {
+                        last = vars[v];
+                        vars[tmp] = last;
+                    } else {
+                        tmp = v;
+                    }
+                }
+                i++;
+            }            
+            return vars[tmp];
+        }
+    }
+};

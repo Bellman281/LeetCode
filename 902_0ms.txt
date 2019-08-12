@@ -1,0 +1,21 @@
+class Solution {
+public:
+int dfs(string strN,int cur,vector<string>& D){
+    if(cur==strN.size())return 1;
+    int count = 0;
+    int count2 = 0;
+    for(int i=0;i<D.size();i++){
+        if(D[i][0]<strN[cur])count++;
+        if(D[i][0]==strN[cur])count2++;
+    }
+    if(count2==0)return count*pow(D.size(),strN.size()-1-cur);
+    else return count*pow(D.size(),strN.size()-1-cur)+dfs(strN,cur+1,D);
+}
+int atMostNGivenDigitSet(vector<string>& D, int N) {
+    string strN = to_string(N);
+    int ans = 0;
+    for(int i=1;i<strN.size();i++)ans+=pow(D.size(),i);
+    ans += dfs(strN,0,D);
+    return ans;
+}
+};

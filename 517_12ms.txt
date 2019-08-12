@@ -1,0 +1,13 @@
+class Solution {
+public:
+    int findMinMoves(vector<int>& machines) {
+    int sum = accumulate(machines.begin(), machines.end(), 0), len = machines.size(), avg = sum / len, res = 0;
+    if(sum % len) return -1; 
+    // carry can be accumulated from 0 to len - 1. if carry < 0, means some address need be transitioned to the left, else to the right. but the direction of transtion doesn't matters.  And please note when i = len - 1, carry = 0, this carry has no impacts on the final result.
+
+    // if current number is greater than avg, it needs be transitioned to left/right, one at time. so max = Math.max(max, machines[i] - avg)
+    // but the if(machines[i] > avg) can be removed, since if machines[i] < avg, max is not changed, e.g. max = Math.max(max, machines[i] - avg). 
+    for(int i = 0, carry = 0; i < len; res = max(res, abs(carry)), carry += machines[i++] - avg) res = max(res, machines[i] - avg);
+    return res;
+}
+};

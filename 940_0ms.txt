@@ -1,0 +1,12 @@
+class Solution {
+public:
+   int distinctSubseqII(string S) {
+    int pos[26] = {}, mod = 1e9 + 7, sum = 1;
+    for (auto ch : S) {
+        auto old_sum = sum;
+        sum = (mod + sum * 2 % mod - pos[ch - 'a']) % mod;
+        pos[ch - 'a'] = old_sum;
+    } 
+    return sum - 1; 
+} 
+};

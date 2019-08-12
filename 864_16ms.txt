@@ -1,0 +1,90 @@
+const int MAX_N = 30;
+const int MAX_K = 6;
+
+const int dr[4] = {0, 0, 1, -1};
+const int dc[4] = {1, -1, 0, 0};
+
+bool vis[MAX_N][MAX_N][1 << MAX_K];
+
+struct State {
+    int r;
+    int c;
+    int keys;
+    int step;
+
+    State(int r, int c, int keys, int step): r(r), c(c), keys(keys), step(step) {}
+};
+
+class Solution {
+public:
+    int shortestPathAllKeys(vector<string>& grid) {
+        if (grid.empty() || grid[0].empty()) {
+            return -1;
+        }
+
+        unordered_map<char, int> lockmap;
+        for (int i = 0; i < 6; ++i) {
+            lockmap['a' + i] = i;
+            lockmap['A' + i] = i;
+        }
+
+        int row = grid.size();
+        int col = grid[0].size();
+
+        int startr = -1;
+        int startc = -1;
+        int locks = 0;
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                fill(vis[i][j], vis[i][j] + (1 << MAX_K), false);
+                if (grid[i][j] == '@') {
+                    startr = i;
+                    startc = j;
+                } else if (grid[i][j] >= 'a' && grid[i][j] <= 'f') {
+                    ++locks;
+                }
+            }
+        }
+
+        if (startr == -1) {
+            return -1;
+        }
+
+        queue<State> q;
+        q.push(State(startr, startc, 0, 0));
+        vis[startr][startc][0] = true;
+
+        int res = -1;
+        while (!q.empty()) {
+            State s = q.front();
+            q.pop();
+
+            if (s.keys == (1 << locks) - 1) {
+                res = s.step;
+                break;
+            }
+
+            for (int i = 0; i < 4; ++i) {
+                int nr = s.r + dr[i];
+                int nc = s.c + dc[i];
+                if (nr >= 0 && nr < row && nc >= 0 && nc < col && grid[nr][nc] != '#') { 
+                    if ((grid[nr][nc] >= 'A' && grid[nr][nc] <= 'F') && (((s.keys >> lockmap[grid[nr][nc]]) & 1) == 0)) {
+                        continue;
+                    }
+
+                    int nkeys = s.keys;
+                    if (grid[nr][nc] >= 'a' && grid[nr][nc] <= 'f') {
+                        nkeys |= (1 << lockmap[grid[nr][nc]]);
+                    }
+
+                    if (!vis[nr][nc][nkeys]) {
+                        q.push(State(nr, nc, nkeys, s.step + 1));
+                        vis[nr][nc][nkeys] = true;
+                    }
+                }
+            }
+        }
+
+        return res;
+    }
+};

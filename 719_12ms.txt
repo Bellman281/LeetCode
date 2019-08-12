@@ -1,0 +1,38 @@
+class Solution {
+public:
+    int smallestDistancePair(vector<int>& nums, int k) {
+        // since order doesn't matter here we can sort the array 
+        sort(begin(nums),end(nums));
+        
+        // We will perform binary search on the range - [0,max element - min element + 1)
+        // Within each search we will examine the middle element  med and we will figure out how many pairs 
+        // have a distance less than or equal to m.
+        // When we are done counting, we compare the count to k. If it is less than k, then our med value is too
+        // small and we need to adjust the "start" of our search.
+        // Otherwise, we need to reduce the range of our search from above.
+        // It is important to note that even if our count is exactly k, we  continue the search.
+        // Eventually our algorithm will converge when we find a count = K for a given m and every count             
+        // between [start,m) will be smaller than k, forcing start to be incremented to the point where start == m which is  our result.
+        int start = 0;
+        for(int end = nums.back() - nums[0] + 1; start < end;){
+            int med = (start + end)/2;
+            int count = 0;
+            for(int i = 0, j = 1; i <= j && j < nums.size();){
+                if(nums[j] - nums[i] <= med){
+                    count += j - i;
+                    j++;
+                }else{
+                    i++;
+                }
+            }
+            
+            if(count >= k){
+                end = med;
+            }else{
+                start = med + 1;
+            }
+        }
+        
+        return start;
+    }
+};

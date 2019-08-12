@@ -1,0 +1,40 @@
+//Open question: I think if there only 2 letters, not 26. 
+//There is a O(n) solution.
+//Can anyone prove it?
+
+class Solution {
+	
+public:
+	int strangePrinter(string s) {
+		if (s.empty()) return 0;
+
+		//remove consecutive duplicates
+		string t(1, s[0]);
+		for (int i = 1; i < s.size(); ++i)
+			if (s[i] != t.back()) t.push_back(s[i]);
+
+		//dp[j][i] is the result for [i, j] of the input string. Yes, it is dp[j][i], NOT dp[i][j]
+		int N = t.size();
+		vector<vector<int>> dp(N, vector<int>(N, 0));
+		dp[0][0] = 1;
+
+		for (int i = 1; i < N; ++i)
+		{
+			for (int j =i; j>=0; --j) //walk backwards
+			{
+				dp[i][j] = dp[i - 1][j] + 1;
+
+				for (int k = j; k < i; k++)
+				{
+					if (t[k] == t[i])
+					{
+						dp[i][j] = min(dp[i][j], dp[k][j] + dp[i-1][k+1]);
+					}
+				}
+		    }
+		}
+
+		return dp[N - 1][0];
+
+	}
+};

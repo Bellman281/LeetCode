@@ -1,0 +1,164 @@
+struct Node
+{
+    Node* parent;
+    string state;
+    int indexForZero;
+    int row;
+    int col;
+    int g_steps;
+    int h;
+    int f;
+};
+
+class Solution 
+{
+public:
+    int slidingPuzzle(vector<vector<int>>& board) 
+    {
+        const int rows = board.size();
+        const int cols = board[0].size();
+
+        string finalState = "";
+        string startState ="";
+        
+        for(int r= 0; r <rows; r++)
+        {
+            for(int c =0; c <cols; c++)
+            {
+                const char k = board[r][c];
+				
+				// create the start state
+                startState += (k +'0');
+				
+				// create the final state
+                finalState += (r *cols +c +1) % (rows *cols) +'0';
+            }
+        }
+        
+		// Check if the start state equals the final state. Return 0 if they are the same at this point.
+        if(startState == finalState) return 0;
+        
+        // Create the start node
+        Node start;
+        
+        start.parent = nullptr;		
+        start.state = startState;		
+        start.indexForZero = startState.find('0');		
+        start.row = start.indexForZero /cols;
+        start.col = start.indexForZero %cols;		
+        start.g_steps = 0;
+        start.h = manhattanDist(start.state, finalState);
+        start.f = start.g_steps +start.h;
+
+        // comparator for min heap process that store the elements based on f values in ascending order
+        auto comp = [](const Node& a, const Node& b)
+        {
+            return a.f > b.f;
+        };
+
+        // It's used for accessing the node in O(1)
+        // key = state, value = Node
+        unordered_map<string, Node*> map;
+        
+        priority_queue<Node, vector<Node>, decltype(comp)> openList(comp);
+        openList.push(start);  
+        
+        map[start.state] = &start;
+        
+        unordered_set<string> closeList;
+
+		// 4-way directions
+        const vector<int> dirs{-1,0,1,0,-1};
+
+		// A* process (Template is the almost the same as BFS)
+        while(!openList.empty())
+        {
+            Node node = openList.top();
+            openList.pop();
+            map.erase(node.state);
+            
+            if(node.state == finalState) return node.g_steps;
+            
+            // push the current node to the close list, as visited
+            closeList.insert(node.state);
+            
+            const string state = node.state;
+            int r = node.row;
+            int c = node.col;
+            int indexForZero = node.indexForZero;
+            
+            // check neighbors
+            for(int i =0; i <4; i++)
+            {
+                int newRow = r +dirs[i];
+                int newCol = c +dirs[i +1];
+                
+                if(newRow <0 || newRow >=rows || newCol <0 || newCol >=cols) continue;
+
+                // new index for zero
+                int newIndex = (newRow *cols +newCol);
+                
+                // new state
+                string copy(state);
+                swap(copy[newIndex], copy[indexForZero]);
+
+                // if it's visited, skip the process
+                if(closeList.count(copy)) continue;
+                                         
+                // Create the neighbor node
+                Node neighbor;
+                
+                neighbor.parent = &node;
+                neighbor.state = copy;
+                neighbor.row = newRow;
+                neighbor.col = newCol;
+                neighbor.indexForZero = newIndex;
+                
+                neighbor.g_steps = node.g_steps +1; // increment the step by 1 at each layer
+                neighbor.h = manhattanDist(copy, finalState); // O(n)
+                neighbor.f = neighbor.g_steps +neighbor.h;
+                
+                // if it's not in the open list
+                if(!map.count(copy))
+                {
+					// Add this neighbor node to the open list
+                    map[copy] = &neighbor;
+                    openList.push(neighbor);
+                }
+                else
+                {
+                    // If the new state is in the open list, retrieve the node
+                    Node actualNode = *map[copy];
+                    
+                    if(neighbor.f < actualNode.f)
+                    {
+                        // update the actual node data
+                        actualNode.g_steps = neighbor.g_steps;
+                        actualNode.h = neighbor.h;
+                        actualNode.parent = neighbor.parent;
+                        
+                        map[copy] = &actualNode;
+                    }
+                }
+            }
+        }
+        
+		// no result found
+        return -1;
+    }
+    
+private:
+    int manhattanDist(const string& s, const string& goal)
+    {
+        int count =0;
+        
+        for(int i =0; i <goal.size(); i++)
+        {
+            if(goal[i] != '0' && goal[i] != s[i])
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+};

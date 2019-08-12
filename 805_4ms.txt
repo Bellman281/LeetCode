@@ -1,0 +1,82 @@
+#define pr(a,b)
+class Solution {
+public:
+    int _n;
+    bool helper1(vector<int> &A, int target, int indx, int c) {
+        int n = _n;
+        
+        pr(target, c);
+        pr(c, indx);
+        if (indx == n  && target)
+            return false;
+        
+        if (target == 0 )
+            if (c == 0)
+                return true;
+            else {
+                int i = 0;
+                while(c) {
+                    if (A[i] == 0) {
+                        c--;
+                        i++;
+                    } 
+                    else 
+                        return false;
+                }
+                return true;
+            }
+        
+                 
+            
+        
+        for (int i = 0; i + indx < n; i++) {
+            int j = i + indx;
+                              
+            if (c &&  A[j] && helper1(A, target - A[j], j + 1, c - 1) == true)
+                return true;
+        }
+        
+        
+        return false;
+    }
+    
+    bool helper(vector<int> &A, int c, int sum) {
+        pr(c, sum);
+        return helper1(A, sum * c / _n, 0, c);
+    }
+    
+    bool splitArraySameAverage(vector<int>& A) {
+        sort(A.begin(), A.end());
+        int n = A.size();
+        _n = n;
+        int64_t sum = 0;
+        int d= A[0];
+        for (int i = 0; i < n; i++) {
+            A[i] = A[i] - d;
+            sum = sum + A[i];
+            pr(sum, A[i]);
+        }
+        pr(sum, n);
+        int i;
+        
+        if (sum == 0 && n >= 2)
+            return true;
+        
+        for ( i = 1; i <= n / 2; i++) {
+            pr(sum * i / n * n, sum * i);
+            if (sum * i / n * n == sum * i) {
+                if (helper(A, i, sum)) {
+                    return true;
+                }
+            }
+                
+        }
+        
+        if (i == n / 2 + 1)
+            return false;
+        
+                 
+        return true;
+        
+    }
+};

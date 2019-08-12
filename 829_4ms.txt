@@ -1,0 +1,17 @@
+class Solution {
+public:
+    int consecutiveNumbersSum(int N) {
+        int p = 1;
+        int ret = 0;
+        
+        for (int i = 1; i <= N; i += ++p) {
+            int remainder = N - i;
+            
+            if (remainder % p == 0) {
+                ret++;
+            }
+        }
+        
+        return ret;
+    }
+};

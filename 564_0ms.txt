@@ -1,0 +1,51 @@
+class Solution {
+public:
+// This will reverse the second part of the string only
+string makePalindrome(string s){
+	for(int i = 0, j = s.length() - 1; i < j; i++, j--)
+		s[j] = s[i];
+	return s;
+}
+
+string nearestPalindromic(string s) {
+
+	long long value = stoll(s);
+	int len = s.length();
+	long long partition = (long long)pow(10, len/2);
+
+	//  One option could be to simply reverse the second part of the given string
+	string simple = makePalindrome(s);
+	long long simpler_value = stoll(simple);
+	long long diff1 = abs( simpler_value - value );
+
+	// Making smaller palindrome
+	// Converting to highest lower value by cutting at middle. Ex:- 12332 -> 12300 -> 12299 and then palindroming
+	string smaller = makePalindrome(to_string( (value/partition) * partition - 1 ) );
+	long long smaller_value = stoll(smaller);
+	long long diff2 = abs( smaller_value - value );
+
+	// Making bigger palindrome
+	// Converting to lowest bigger value by cutting at middle. Ex:- 12332 -> 12400, 9997 -> 10000 and then palindroming
+	string bigger = makePalindrome(to_string( (value/partition + 1) * partition ) );
+	long long bigger_value = stoll(bigger);
+	long long diff3 = abs( bigger_value - value );
+
+	long long final_diff = diff1;
+	string result = simple;
+	
+	// If diff2 comes out to be lower or equal it must be chosen as it is for smaller palindrome
+	// Or if diff1 is 0 i.e. given number is itself a palindrome, don't choose it
+	if(diff2 <= diff1 || diff1 == 0){
+		final_diff = diff2;
+		result = smaller;
+	}
+
+    // If the diff3 comes out to be lower return bigger palindrome as answer
+	if(diff3 < final_diff){
+		final_diff = diff3;
+		result = bigger;
+	}
+
+	return result;
+}
+};

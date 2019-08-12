@@ -1,0 +1,31 @@
+class Solution {
+public:
+    vector<int> root;
+    
+    int trace(int i) {
+        while (i != root[i]) i = root[i];
+        return i;
+    }
+    
+    vector<int> findRedundantDirectedConnection(vector<vector<int>>& edges) {
+        vector<int> res, candidate;
+        int n = edges.size();
+        root.assign(n + 1, 0);
+        for (int i = 0; i <= n; i++) root[i] = i;
+        
+        for (int i = 0; i < n; i++) {
+            int v = edges[i][0], u = edges[i][1], ru = trace(u), rv = trace(v);
+            
+            if (root[u] != u) { // two nodes point to one node
+                if (!candidate.empty()) res = {root[u], u};
+                else { candidate = {root[u], u}; res = {v, u}; }
+            } else if (ru == rv) { // cycle detected
+                if (candidate.empty()) candidate = {v, u};
+                else res = candidate;
+            }
+            // update root when no violations occur
+            if (root[u] == u && ru != rv) root[u] = v;
+        }
+        return res.empty() ? candidate : res;
+    }
+};

@@ -1,0 +1,27 @@
+class Solution {
+public:
+    int check(string word, string guess) {
+        int c = 0;
+        for (int i = 0; i< 6; i++) {
+            if (word[i] == guess[i]) c++;
+        }
+        return c;
+    }
+    void findSecretWord(vector<string>& wordlist, Master& master) {
+        vector<string> tmp;
+        int count = 0;
+        while ( count < 10) {
+            count ++;
+            int r = std::rand() % wordlist.size();
+            string choose = wordlist[r];
+            int res = master.guess(choose);
+            if (res == 6) return;
+            for (int i = 0; i < wordlist.size(); i++) {
+                if (res == check(wordlist[i],choose)) tmp.push_back(wordlist[i]);
+            }
+            swap(tmp,wordlist);
+            tmp.clear();
+        }
+        
+    }
+};
